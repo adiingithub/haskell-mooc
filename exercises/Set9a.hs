@@ -26,7 +26,13 @@ import Mooc.Todo
 -- Otherwise return "Ok."
 
 workload :: Int -> Int -> String
-workload nExercises hoursPerExercise = todo
+workload numExercises hoursPerTask =
+  if numExercises * hoursPerTask > 100 then
+    "Holy moly!"
+  else if numExercises * hoursPerTask < 10 then
+    "Piece of cake!"
+  else
+    "Ok.
 
 ------------------------------------------------------------------------------
 -- Ex 2: Implement the function echo that builds a string like this:
@@ -38,8 +44,19 @@ workload nExercises hoursPerExercise = todo
 --
 -- Hint: use recursion
 
-echo :: String -> String
-echo = todo
+echo :: String -> String    
+    echo "" = ""
+    echo a = comma (shake a)
+  where
+    shake :: String -> [String]
+    shake [] = []
+    shake xs = [xs] ++ shake (tail xs)
+
+    comma :: [String] -> String
+    comma [] = ""
+    comma [b] = b
+    comma (b:bs) = b ++ ", " ++ comma bs
+
 
 ------------------------------------------------------------------------------
 -- Ex 3: A country issues some banknotes. The banknotes have a serial
@@ -52,7 +69,11 @@ echo = todo
 -- are valid.
 
 countValid :: [String] -> Int
-countValid = todo
+countValid xs = length [x | x <- xs, isValid x]
+  where
+    isValid :: String -> Bool
+    isValid x = length x >= 6 && ((x !! 2 == x !! 4) || (x !! 3 == x !! 5))
+
 
 ------------------------------------------------------------------------------
 -- Ex 4: Find the first element that repeats two or more times _in a
@@ -64,7 +85,11 @@ countValid = todo
 --   repeated [1,2,1,2,3,3] ==> Just 3
 
 repeated :: Eq a => [a] -> Maybe a
-repeated = todo
+repeated [] = Nothing         -- Case: Empty list
+repeated [_] = Nothing        -- Case: Singleton list
+repeated (x:ys@(y:_))
+  | x == y = Just x           -- Found consecutive repetition
+  | otherwise = repeated ys   -- Recur with the tail of the list
 
 ------------------------------------------------------------------------------
 -- Ex 5: A laboratory has been collecting measurements. Some of the
@@ -86,7 +111,12 @@ repeated = todo
 --     ==> Left "no data"
 
 sumSuccess :: [Either String Int] -> Either String Int
-sumSuccess = todo
+sumSuccess as = case bs of
+    [] -> Left "no data"
+    _  -> Right (sum bs)
+  where
+    bs = [x | Right x <- as]
+
 
 ------------------------------------------------------------------------------
 -- Ex 6: A combination lock can either be open or closed. The lock
@@ -146,8 +176,14 @@ changeCode = todo
 --   Text "abc"  == Text "abcd"     ==> False
 --   Text "a bc" == Text "ab  d\n"  ==> False
 
-data Text = Text String
-  deriving Show
+data Txt = Txt String
+  deriving (Show)
+
+instance Eq (Txt) where
+  (Txt x) == (Txt y) = filter p x == filter p y
+    where
+      p z = not (Data.Char.isSpace z)
+
 
 
 ------------------------------------------------------------------------------
@@ -181,8 +217,12 @@ data Text = Text String
 --     compose [("a","alpha"),("b","beta"),("c","gamma")] [("alpha",1),("beta",2),("omicron",15)]
 --       ==> [("a",1),("b",2)]
 
-compose :: (Eq a, Eq b) => [(a,b)] -> [(b,c)] -> [(a,c)]
-compose = todo
+compose :: (Eq a, Eq b) => [(a, b)] -> [(b, c)] -> [(a, c)]
+compose ((p, q) : rs) t = case lookup q t of
+  Just u -> (p, u) : compose rs t
+  Nothing -> compose rs t
+compose _ _ = []
+
 
 ------------------------------------------------------------------------------
 -- Ex 9: Reorder a list using a list of indices.
